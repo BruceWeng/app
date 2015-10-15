@@ -4,10 +4,12 @@ var app        = express(); // define our app using express
 var bodyParser = require('body-parser'); // get body-parser
 var morgan     = require('morgan'); // used to see requests
 var mongoose   = require('mongoose'); // for working w/ our database
-var port       = process.env.PORT || 8080; // set the port for our app
-var User       = require('./app/models/user');
-mongoose.connect('mongodb://node.noder@novus.modulusmongo.net:27017/Iganiq8o');
+var User       = require('./models/user');
+
 // APP CONFIGURATION
+var port       = process.env.PORT || 8080; // set the port for our app
+// connect to our database (hosted on modulus.io)
+mongoose.connect('mongodb://node:noder@novus.modulusmongo.net:27017/Iganiq8o');
 // use body parser os we can grab information from POST requests
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
@@ -35,7 +37,7 @@ var apiRouter = express.Router();
 //middleware to use for all requests
 apiRouter.use(function(req, res, next) {
   // do logging
-  condole.log('Somebody just came to our app!');
+  console.log('Somebody just came to our app!');
   // we'll add more to the middleware in Chapter 10
   // this is where we will authenticate users
   next(); // make sure we go to the next routes and don't stop here
