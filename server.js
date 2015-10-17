@@ -167,6 +167,27 @@ apiRouter.route('/events')
       }
       res.json({ message: 'Event created!'});
     });
+  })
+
+  // get event information for the card
+  .get(function(req, res) {
+    Event.find(function(err, events) {
+      if (err) res.send(err);
+
+      // return the events
+      res.json(events);
+    });
+  });
+
+apiRouter.route('/events/:event_id')
+  //get that end in /events/:event_id
+  // (access at GET http://localhost:8080/api/events/:event_id)
+  .get(function(req, res) {
+    Event.findById(req.params.event_id, function(err, evt) {
+      if (err) res.send(err);
+
+      res.json(evt);
+    });
   });
 
 // REGISTER OUR ROUTES
