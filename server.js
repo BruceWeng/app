@@ -9,7 +9,18 @@ var User       = require('./models/user');
 // APP CONFIGURATION
 var port       = process.env.PORT || 8080; // set the port for our app
 // connect to our database (hosted on modulus.io)
-mongoose.connect('mongodb://node:noder@novus.modulusmongo.net:27017/Iganiq8o');
+
+var mongourl = '';
+if (process.env.NODE_ENV != 'production') {
+  console.log('not prod');
+  mongourl = 'mongodb://localhost:27017/test';
+} else {
+  console.log('prod');
+  mongourl = process.env.MONGOLAB_URL;
+}
+
+
+mongoose.connect(mongourl);
 // use body parser os we can grab information from POST requests
 app.use(bodyParser.urlencoded({ extended: true}));
 app.use(bodyParser.json());
@@ -60,6 +71,8 @@ apiRouter.route('/users')
     user.username = req.body.username;
     user.password = req.body.password;
 
+    console.log(user);
+
     // save the user and check for errors
     user.save(function(err) {
       if(err) {
@@ -72,6 +85,61 @@ apiRouter.route('/users')
       res.json({ message: 'User created!'});
     });
   })
+
+  // get all the users (accessed at GET http://localhost:8080/api/users)
+  .get(function(req, res) {
+    User.find(function(err, users) {
+      if (err) res.send(err);
+      // return the users
+      res.json(users);
+    });
+  });
+
+// on routes that end in /user/:user_id
+apiRouter.route('/users/:user_id')
+  //get the user with that id
+  // (accessed at GET http://localhost:8080/api/users/:user_id)
+  .get(function(req, res) {
+    User.findById(req.params.user_id, function(err, user) {
+      if(err) res.send(err);
+      // return that user
+      res.json(user);
+    });
+  })
+
+  //update the user with this id
+  // (accessed at PUT http://localhost:8080/api/users:user_id)
+  .put(function(req, res) {
+    // use our user model to find the user we want
+    User.findById(req.params.user_id, function(err, user) {
+      if (err) res.send(err);
+
+      //update the users info only if it's new
+      if (req.body.name) user.name = req.body.name;
+      if (req.body.username) user.username = req.body.username;
+      if (req.body.password) user.password = req.body.password;
+
+      // save the user
+      user.save(function(err) {
+        if (err) res.send(err);
+
+        //return a message
+        res.json({ message: 'Userupdated!'});
+      });
+    });
+  })
+
+  //delete the user with this id
+  // (accessed at DELETE http://localhost:8000/api/users/:user_id)
+  .delete(function(req, res) {
+    User.remove({
+      _id: req.params.user_id
+    }, function(err, user) {
+      if (err) return res.send(err);
+
+      res.json({ message: 'Successfully deleted'});
+        });
+  });
 // REGISTER OUR ROUTES
 // all of our routes will be prefixed with /api
 app.use('/api', apiRouter);
