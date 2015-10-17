@@ -146,9 +146,6 @@ apiRouter.route('/events')
 
     //create a new instance of the Event model
     var evt = new Event();
-    console.log(evt);
-
-    console.log(1);
     //set the events information (comes from the request)
     evt.title = req.body.title;
     evt.organizer = req.body.organizer;
@@ -188,7 +185,36 @@ apiRouter.route('/events/:event_id')
 
       res.json(evt);
     });
-  });
+  })
+
+  //update the event with this id
+  //(access at PUT http://localhost:8080/api/events/:event_id)
+  .put(function(req, res) {
+
+    // use our event model to find the event we want
+    Event.findById(req.params.event_id, function(err, evt) {
+      if(err) res.send(err);
+
+      //update the users info only if its new
+      if (req.body.title) evt.title = req.body.title;
+      if (req.body.organizer) evt.organizer = req.body.organizer;
+      if (req.body.desc) evt.desc = req.body.desc;
+      if (req.body.s_date) evt.s_date = req.body.s_date;
+      if (req.body.e_date) evt.e_date = req.body.e_date;
+      if (req.body.c_date) evt.c_date = Date.now();
+      if (req.body.lct) evt.lct = req.body.lct;
+      if (req.body.categories) evt.categories = req.body.categories;
+      if (req.body.img_url) evt.img_url = req.body.img_url;
+
+      //save the event
+      evt.save(function(err) {
+        if (err) res.send(err);
+
+        // return a message
+        res.json({ message: 'Event updated!'});
+      });
+    });
+  })
 
 // REGISTER OUR ROUTES
 // all of our routes will be prefixed with /api
