@@ -4,7 +4,7 @@ var app        = express(); // define our app using express
 var bodyParser = require('body-parser'); // get body-parser
 var morgan     = require('morgan'); // used to see requests
 var mongoose   = require('mongoose'); // for working w/ our database
-var lodash     = require('lodash'); // use js utility library
+var _          = require('lodash'); // use js utility library
 var User       = require('./models/user');
 var Event      = require('./models/event');
 
@@ -139,20 +139,34 @@ apiRouter.route('/users/:user_id')
       res.json({ message: 'Successfully deleted'});
         });
   });
+
 apiRouter.route('/events')
   // create a event (access at POST http://localhost: 8080/api/events)
   .post(function(req, res) {
+
     //create a new instance of the Event model
-    var Event = new Event();
+    var evt = new Event();
+    console.log(evt);
+
+    console.log(1);
     //set the events information (comes from the request)
-    Event.title = req.body.title;
-    Event.desc = req.body.desc;
-    Event.s_date = req.body.s_date;
-    Event.e_date = req.body.e_date;
-    Event.c_date = req.body.c_date;
-    Event.categories = req.body.categories;
-    Event.creator = _.pick(req.body.creator, _.keys(EventSchema.creator));
-    Event.img_url = req.body.img_url;
+    evt.title = req.body.title;
+    evt.organizer = req.body.organizer;
+    evt.desc = req.body.desc;
+    evt.s_date = req.body.s_date;
+    evt.e_date = req.body.e_date;
+    evt.c_date = Date.now();
+    evt.lct = req.body.lct;
+    evt.categories = req.body.categories;
+    evt.img_url = req.body.img_url;
+    evt.creator = req.body.id;
+    // save the event and check for errors
+    evt.save(function (err, ssss) {
+      if (err) {
+        console.error(err);
+      }
+      res.json({ message: 'Event created!'});
+    });
   });
 
 // REGISTER OUR ROUTES
