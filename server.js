@@ -4,12 +4,13 @@ var app        = express(); // define our app using express
 var bodyParser = require('body-parser'); // get body-parser
 var morgan     = require('morgan'); // used to see requests
 var mongoose   = require('mongoose'); // for working w/ our database
+var lodash     = require('lodash'); // use js utility library
 var User       = require('./models/user');
+var Event      = require('./models/event');
 
 // APP CONFIGURATION
 var port       = process.env.PORT || 8080; // set the port for our app
 // connect to our database (hosted on modulus.io)
-
 var mongourl = '';
 if (process.env.NODE_ENV != 'production') {
   console.log('not prod');
@@ -18,8 +19,6 @@ if (process.env.NODE_ENV != 'production') {
   console.log('prod');
   mongourl = process.env.MONGOLAB_URL;
 }
-
-
 mongoose.connect(mongourl);
 // use body parser os we can grab information from POST requests
 app.use(bodyParser.urlencoded({ extended: true}));
@@ -124,7 +123,7 @@ apiRouter.route('/users/:user_id')
         if (err) res.send(err);
 
         //return a message
-        res.json({ message: 'Userupdated!'});
+        res.json({ message: 'User updated!'});
       });
     });
   })
@@ -140,6 +139,22 @@ apiRouter.route('/users/:user_id')
       res.json({ message: 'Successfully deleted'});
         });
   });
+apiRouter.route('/events')
+  // create a event (access at POST http://localhost: 8080/api/events)
+  .post(function(req, res) {
+    //create a new instance of the Event model
+    var Event = new Event();
+    //set the events information (comes from the request)
+    Event.title = req.body.title;
+    Event.desc = req.body.desc;
+    Event.s_date = req.body.s_date;
+    Event.e_date = req.body.e_date;
+    Event.c_date = req.body.c_date;
+    Event.categories = req.body.categories;
+    Event.creator = _.pick(req.body.creator, _.keys(EventSchema.creator));
+    Event.img_url = req.body.img_url;
+  });
+
 // REGISTER OUR ROUTES
 // all of our routes will be prefixed with /api
 app.use('/api', apiRouter);
