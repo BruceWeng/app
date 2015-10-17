@@ -216,6 +216,18 @@ apiRouter.route('/events/:event_id')
     });
   })
 
+  // delte the event with this id
+  // (accessed at DELETE http://local:8080/api/events/:event_id)
+  .delete(function(req, res) {
+    Event.remove({
+      _id: req.params.event_id
+    }, function(err, evt) {
+      if (err) return res.send(err);
+
+      res.json({ message: 'Successfully deleted' });
+    });
+  })
+
 // REGISTER OUR ROUTES
 // all of our routes will be prefixed with /api
 app.use('/api', apiRouter);
