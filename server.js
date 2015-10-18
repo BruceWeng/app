@@ -7,7 +7,25 @@ var mongoose   = require('mongoose'); // for working w/ our database
 var _          = require('lodash'); // use js utility library
 var User       = require('./models/user');
 var Event      = require('./models/event');
+var jwt = require('jsonwebtoken');
+// create a variable, use a string as the secret
+var superSecret = 'ilovescotchscotchyscotchscotch';
+// Configuring Passport
+var passport = require('passport');
+var expressSession = require('express-session');
+app.use(expressSession({secret: 'mySecretKey'}));
+app.use(passport.initialize());
+app.use(passport.session());
 
+passport.serializeUser(function(user, done) {
+  done(null, user._id);
+});
+
+passport.deserializeUser(function(id, done) {
+  User.findById(id, function(err, user) {
+    done(err, user);
+  });
+});
 // APP CONFIGURATION
 var port       = process.env.PORT || 8080; // set the port for our app
 // connect to our database (hosted on modulus.io)
